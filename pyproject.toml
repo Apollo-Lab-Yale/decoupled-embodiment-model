@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dem"
+version = "0.1.0"
+description = "DEM: Decoupled Embodiment Model. DINOv3 ConvNeXt-B vision, NeoBERT language, MeanFlow action head."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.4",            # nn.RMSNorm (NeoBERT) and torch.func.jvp (MeanFlow)
+    "numpy>=1.24",
+    "transformers>=5.13",    # DINOv3 ConvNeXt (5.x weight layout of the research checkpoints) and the BERT tokenizer
+    "safetensors>=0.4",      # NeoBERT weights
+    "huggingface_hub>=1.0",  # downloads config.json / model.safetensors for NeoBERT; provides the `hf` CLI
+]
+
+[project.optional-dependencies]
+# DINOv3 ViT-B/16 encoder (used in the paper's vision ablation) is served by timm.
+vit = ["timm>=1.0.20"]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["dem*"]
+
+[tool.setuptools.package-data]
+dem = ["configs/**/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "network: downloads weights from the Hugging Face Hub (set DEM_NETWORK_TESTS=1)",
+    "slow: takes more than a few seconds on CPU",
+]
